@@ -4,11 +4,11 @@ import { HardhatUserConfig } from "hardhat/types";
 import "../../../src/index";
 
 const config: HardhatUserConfig = {
-  solidity: "0.7.3",
+  solidity: "0.8.17",
   defaultNetwork: "hardhat",
-  paths: {
-    newPath: "asd",
-  },
+  // paths: {
+  //   newPath: "asd",
+  // },
 };
 
 export default config;
