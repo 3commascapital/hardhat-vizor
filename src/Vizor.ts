@@ -1,7 +1,10 @@
 import "@nomicfoundation/hardhat-toolbox";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { ethers } from "ethers";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
+import {
+  HardhatNetworkForkingUserConfig,
+  HardhatRuntimeEnvironment,
+} from "hardhat/types";
 
 export class Vizor {
   constructor(protected hre: HardhatRuntimeEnvironment) {}
@@ -36,5 +39,22 @@ export class Vizor {
       params: [impersonatingAddress],
     });
     return receipt || result;
+  }
+  public async resetNetwork(args: HardhatNetworkForkingUserConfig) {
+    if (args.blockNumber) {
+      args.blockNumber = +args.blockNumber;
+    }
+    await this.hre.network.provider.request({
+      method: "hardhat_reset",
+      params: [
+        {
+          forking: {
+            ...this.hre.config.networks.hardhat.forking,
+            ...(this.hre.userConfig.networks?.hardhat?.forking || {}),
+            ...args,
+          },
+        },
+      ],
+    });
   }
 }
