@@ -1,6 +1,6 @@
 {
   "name": "hardhat-vizor",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Hardhat TypeScript plugin vizor",
   "repository": "github:3commascapital/hardhat-vizor",
   "author": "3commascapital",
