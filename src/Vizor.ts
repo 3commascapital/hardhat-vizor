@@ -57,4 +57,15 @@ export class Vizor {
       ],
     });
   }
+  async attemptVerify(contract: ethers.BaseContract, args: any[] = [], printFailure = false) {
+    // contract.deployTransaction
+    await this.hre.run('verify:verify', {
+      address: contract.address,
+      constructorArguments: args,
+    }).catch((err: any) => {
+      if (printFailure) {
+        console.log(err)
+      }
+    })
+  }
 }
