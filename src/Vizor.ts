@@ -5,8 +5,12 @@ import {
   HardhatNetworkForkingUserConfig,
   HardhatRuntimeEnvironment,
 } from "hardhat/types";
+import {
+  addressFromTarget,
+} from './utils'
 
 export class Vizor {
+  static addressFromTarget = addressFromTarget;
   constructor(protected hre: HardhatRuntimeEnvironment) {}
   /**
    * impersonate
