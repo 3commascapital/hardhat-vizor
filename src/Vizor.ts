@@ -8,6 +8,14 @@ import {
 import {
   addressFromTarget,
 } from './utils'
+import * as helpers from '@nomicfoundation/hardhat-network-helpers'
+
+
+type TraceProperties = {
+  disableMemory: boolean;
+  disableStack: boolean;
+  disableStorage: boolean;
+}
 
 export class Vizor {
   static addressFromTarget = addressFromTarget;
@@ -71,5 +79,11 @@ export class Vizor {
         console.log(err)
       }
     })
+  }
+  async traceTransactions(hash: string, options: Partial<TraceProperties> = {}) {
+    return await this.hre.network.provider.send('debug_traceTransaction', [
+      hash,
+      options,
+    ])
   }
 }
