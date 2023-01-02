@@ -20,10 +20,26 @@ Just run `npm run build` ️👷
 // hardhat.config.ts
 import "hardhat-vizor"
 ```
+impersonate account
 ```ts
 // tests/MyContract.test.ts
 // ...
 await hre.vizor.impersonate("0xdeadbeef...", async (signer) => {
   // do something with impersonated deadbeef signer
 })
+```
+attempt to verify contract
+```ts
+await hre.vizor.attemptVerify(
+  contract, // deployedBaseContract
+  [1, 2, 3], // args
+  true, // print error if it occurs (default false)
+)
+```
+
+reset a forked network
+```ts
+await hre.vizor.resetNetwork(
+  forkConfig, // optional HardhatNetworkForkingUserConfig (defaults to hardhat.config.ts settings)
+)
 ```
