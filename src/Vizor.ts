@@ -8,8 +8,6 @@ import {
 import {
   addressFromTarget,
 } from './utils'
-import * as helpers from '@nomicfoundation/hardhat-network-helpers'
-
 
 type TraceProperties = {
   disableMemory: boolean;
