@@ -70,15 +70,15 @@ export class Vizor {
   async attemptVerify(contract: ethers.BaseContract, args: any[] = [], printFailure = false) {
     const network = await contract.provider.getNetwork()
     const blockDelays = new Map<number, number>([
-      [5, 5],
+      [5, 8],
     ])
     const blockDelay = blockDelays.get(network.chainId) || 0
     if (blockDelay > 0) {
       let latest: ethers.providers.Block
       do {
-        await new Promise((resolve, reject) => { setTimeout(resolve, 3_000) })
+        await new Promise((resolve) => { setTimeout(resolve, 3_000) })
         latest = await contract.provider.getBlock('latest')
-      } while ((contract.deployTransaction.blockNumber || 0) + blockDelay >= latest.number);
+      } while ((contract.deployTransaction.blockNumber || 0) < (latest.number - blockDelay));
     }
     await this.hre.run('verify:verify', {
       address: contract.address,
