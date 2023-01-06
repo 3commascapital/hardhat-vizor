@@ -74,13 +74,14 @@ export class Vizor {
     ])
     const blockDelay = blockDelays.get(network.chainId) || 0
     if (blockDelay > 0) {
+      console.log('waiting for blocks', blockDelay)
       let latest: ethers.providers.Block
       const tx = await contract.provider.getTransactionReceipt(contract.deployTransaction.hash)
       do {
         await new Promise((resolve) => { setTimeout(resolve, 13_000) })
         latest = await contract.provider.getBlock('latest')
-        console.log('verification delay', tx.blockNumber, 'vs', latest.number, blockDelay)
-      } while (tx.blockNumber < (latest.number - blockDelay));
+        console.log('verification delay', tx.blockNumber, 'vs', latest.number)
+      } while (tx.blockNumber >= (latest.number - blockDelay));
     }
     await this.hre.run('verify:verify', {
       address: contract.address,
