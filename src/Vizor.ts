@@ -68,7 +68,18 @@ export class Vizor {
     });
   }
   async attemptVerify(contract: ethers.BaseContract, args: any[] = [], printFailure = false) {
-    // contract.deployTransaction
+    const network = await contract.provider.getNetwork()
+    const blockDelays = new Map<number, number>([
+      [5, 5],
+    ])
+    const blockDelay = blockDelays.get(network.chainId) || 0
+    if (blockDelay > 0) {
+      let latest: ethers.providers.Block
+      do {
+        await new Promise((resolve, reject) => { setTimeout(resolve, 3_000) })
+        latest = await contract.provider.getBlock('latest')
+      } while ((contract.deployTransaction.blockNumber || 0) + blockDelay >= latest.number);
+    }
     await this.hre.run('verify:verify', {
       address: contract.address,
       constructorArguments: args,
