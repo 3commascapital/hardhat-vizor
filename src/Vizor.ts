@@ -78,6 +78,7 @@ export class Vizor {
       do {
         await new Promise((resolve) => { setTimeout(resolve, 3_000) })
         latest = await contract.provider.getBlock('latest')
+        console.log('verification delay', contract.deployTransaction.blockNumber, 'vs', latest.number, blockDelay)
       } while ((contract.deployTransaction.blockNumber || 0) < (latest.number - blockDelay));
     }
     await this.hre.run('verify:verify', {
