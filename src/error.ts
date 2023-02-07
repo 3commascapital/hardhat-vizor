@@ -76,6 +76,21 @@ export class CustomInterfaceError {
       return hash
     }, {} as Record<string, ErrorArgValue>)
   }
+  matches(matchers: Record<string, any>) {
+    const {
+      args,
+      ...remainingMatchers
+    } = matchers
+    return _.matches(remainingMatchers)(this) && (!args || !_.find([...args.entries()], _.reject(
+      ([key, value]: [string, any]) => {
+        const existing = this.args.get(key)
+        if (existing instanceof ethers.BigNumber) {
+          return existing.eq(value)
+        }
+        return existing === value
+      },
+    )))
+  }
 }
 
 export const parseArg = (type: string, content: string) => {
