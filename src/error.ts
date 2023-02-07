@@ -15,7 +15,10 @@ export const fromError = (err: EthersError, intrfce?: ethers.utils.Interface) =>
     return parsed
   }
   const anyError = err as any
-  const data = _.isString(anyError.data) ? anyError.data : err.error?.data?.message
+  const data = anyError?.data
+    || anyError?.error?.data
+    || anyError?.error?.error?.data
+    || anyError?.error?.error?.error?.data
   return new CustomInterfaceError(data, intrfce)
 }
 
