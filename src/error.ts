@@ -84,7 +84,7 @@ export class CustomInterfaceError {
     return _.matches(remainingMatchers)(this) && (!args || !_.find([...args.entries()], _.reject(
       ([key, value]: [string, any]) => {
         const existing = this.args.get(key)
-        if (existing instanceof ethers.BigNumber) {
+        if (ethers.BigNumber.isBigNumber(existing)) {
           return existing.eq(value)
         }
         return existing === value
