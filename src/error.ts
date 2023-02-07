@@ -2,35 +2,6 @@ import * as ethers from 'ethers'
 import { EthersError, getParsedEthersError } from "@enzoferey/ethers-error-parser";
 import _ from 'lodash';
 
-export const parse = (err: any, intrfce: ethers.utils.Interface) => {
-  const parsed = getParsedEthersError(err as EthersError)
-  if (!intrfce || parsed.errorCode !== "UNKNOWN_ERROR") {
-    return parsed
-  }
-  // only message is possible
-  // try to parse custom
-  const found = fragmentFromId(intrfce, err.data)
-  if (!found) {
-    return
-  }
-  const [signature, fragment] = found
-  const argsData = err.data.slice(10)
-  const parsedArgs = fragment.inputs.reduce((args, paramType, index) => {
-    const contentLength = 64
-    const contentStart = index * contentLength
-    const content = argsData.slice(contentStart, contentStart + contentLength)
-    const argAsValue = parseArg(paramType.type, content)
-    args.set(paramType.name, argAsValue)
-    return args
-  }, new Map<number | string, string | boolean | ethers.BigNumber>())
-  return new CustomInterfaceError(
-    intrfce,
-    signature,
-    parsedArgs,
-    fragment,
-  )
-}
-
 export const fragmentFromId = (intrfce: ethers.utils.Interface, _id: string) => {
   const id = _id.slice(0, 10)
   return Object.entries(intrfce.errors).find(([signature, fragment]) => {
@@ -38,27 +9,45 @@ export const fragmentFromId = (intrfce: ethers.utils.Interface, _id: string) => 
   })
 }
 
+export const fromError = (err: EthersError, intrfce?: ethers.utils.Interface) => {
+  const parsed = getParsedEthersError(err)
+  if (!intrfce || parsed.errorCode !== "UNKNOWN_ERROR") {
+    return parsed
+  }
+  const anyError = err as any
+  const data = _.isString(anyError.data) ? anyError.data : err.error?.data?.message
+  return new CustomInterfaceError(data, intrfce)
+}
+
 export type ErrorArgValue = string | ethers.BigNumber | boolean
+export type ErrorArgKey = string | number
 export type ErrorArgMap = Map<string | number, ErrorArgValue>
 
 export class CustomInterfaceError {
   args: ErrorArgMap;
   errorCode = 'CUSTOM_ERROR'
+  signature: string
   fragment: ethers.utils.ErrorFragment
   constructor(
+    protected data: string,
     protected intrfce: ethers.utils.Interface,
-    protected signature: string,
-    protected keyValueArgs: ErrorArgMap,
-    fragmentOrData?: ethers.utils.ErrorFragment | string,
   ) {
-    const found = (_.isString(fragmentOrData)
-      ? fragmentFromId(intrfce, fragmentOrData)
-      : [signature, fragmentOrData] as [string, ethers.utils.ErrorFragment])
+    const found = fragmentFromId(intrfce, data)
     if (!found) {
       throw new Error('unable to find fragment')
     }
-    const [, fragment] = found
+    const [signature, fragment] = found
+    const argsData = data.slice(10)
+    const keyValueArgs = fragment.inputs.reduce((args, paramType, index) => {
+      const contentLength = 64
+      const contentStart = index * contentLength
+      const content = argsData.slice(contentStart, contentStart + contentLength)
+      const argAsValue = parseArg(paramType.type, content)
+      args.set(paramType.name, argAsValue)
+      return args
+    }, new Map<ErrorArgKey, ErrorArgValue>())
     this.fragment = fragment
+    this.signature = signature
     this.args = new Map(_.flatMap([...keyValueArgs.entries()], ([key, value], index) => ([
       [key, value],
       [index, value],
