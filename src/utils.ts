@@ -1,4 +1,4 @@
-import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import type { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { ethers } from "ethers";
 
 export type AddressTarget = string | ethers.Contract | SignerWithAddress
